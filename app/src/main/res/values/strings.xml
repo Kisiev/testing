@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Pokemons</string>
+    <string name="discover_title">Discover</string>
+    <string name="pokedex_title">Pokedex</string>
+    <string name="detail_pokemon">detail_pokemon</string>
+    <string name="stats_title">Stats</string>
+    <string name="abilities_title">Abilities</string>
+    <string name="pokemon_image">pokemon_image</string>
+    <string name="position_item">position_item</string>
+    <string name="network_error">Сервер не отвечает</string>
+    <string name="pokemon_resource_model">pokemon_resource</string>
+</resources>
