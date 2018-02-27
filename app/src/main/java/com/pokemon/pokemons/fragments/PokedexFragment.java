@@ -48,19 +48,19 @@ public class PokedexFragment extends Fragment {
     private void setRecyclerViewAdapter(){
         recyclerView.setAdapter(new RecyclerViewPokedexAdapter(pokemonList, getActivity()));
     }
-
+    // подгружаем список покемонов из локальной базы
     private void getPokemons(){
         pokemonList = PokemonEntity.selectAllPokemons();
     }
-
+    // подгружаем способности выбранного покемона
     private void getAbilities(String url){
         pokemonAbilities = AbilitiesEntity.selectAllAbilities(url);
     }
-
+    // подгружаем характеристики выбранного покемона
     private void getStates(String url){
         pokemonStates = StatesEntity.selectAllStates(url);
     }
-
+    // Создаем единый объект для передачи его в DetailActivity
     private void getPokemonDetails(int pos){
         PokemonDetailsModel pokemonDetails = new PokemonDetailsModel();
         List<Abilities> abilities = new ArrayList<>();
@@ -94,7 +94,7 @@ public class PokedexFragment extends Fragment {
         intent.putExtra(getString(R.string.position_item), pos);
         startActivityForResult(intent, ConstantManager.REQUEST_ACTIVITY);
     }
-
+    // отображаем выбранного покемона на странице DetailActivity
     private void setRecyclerViewClick(){
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getActivity(), recyclerView, new ClickListener() {
             @Override

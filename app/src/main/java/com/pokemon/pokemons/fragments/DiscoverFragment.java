@@ -89,6 +89,7 @@ public class DiscoverFragment extends Fragment implements Animation.AnimationLis
             }
         }));
     }
+    // если скрол дошел до конца, то подгружаем еще покемонов
     private void setRecyclerViewScroll(){
         final GridLayoutManager gridLayoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -109,6 +110,7 @@ public class DiscoverFragment extends Fragment implements Animation.AnimationLis
             }
         });
     }
+    // подгружает с сервера характеристики выбранного покемона
     private void getPokemonDetails(String id, final String imageUrl) throws IOException {
         preloaderLayout.setVisibility(View.VISIBLE);
         pokemonDetails = restService.getPokemonDetails(id);
@@ -142,6 +144,7 @@ public class DiscoverFragment extends Fragment implements Animation.AnimationLis
                 });
 
     }
+    // достаем список покемонов
     private void getPokemons(final boolean isHoldItems) throws IOException {
         if (isHoldItems) {
             pokemonModel = restService.getAllPokemons(String.valueOf(ConstantManager.LIMIT_POKEMON), String.valueOf(offsetList));
@@ -177,6 +180,7 @@ public class DiscoverFragment extends Fragment implements Animation.AnimationLis
                 });
 
     }
+    // достаем с сервера иконки покемонов
     private void getPokemonResources(int startIndex){
         Observable<Integer> pokemonModelObservable = Observable.range(startIndex, pokemonList.getResults().size() - startIndex);
         pokemonModelObservable.subscribeOn(Schedulers.io())
