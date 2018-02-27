@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageView;
 
@@ -17,11 +18,14 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.pokemon.pokemons.fragments.DiscoverFragment;
 import com.pokemon.pokemons.fragments.PokedexFragment;
+import com.pokemon.pokemons.utils.SharedPreference;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
+
+    SharedPreference sharedPreference;
 
     @BindView(R.id.bottom_navigation)
     BottomNavigationView navigationMenu;
@@ -30,6 +34,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        sharedPreference = new SharedPreference(this);
+        sharedPreference.setStatusSubscribe(false);
         navigationMenu.setOnNavigationItemSelectedListener(this);
         replaceFragment(new DiscoverFragment(), R.id.fragment_container);
     }

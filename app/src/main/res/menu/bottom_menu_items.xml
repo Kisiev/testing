@@ -2,8 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/discover_button"
+        android:icon="@drawable/ic_format_list_bulleted_black_24dp"
         android:title="@string/discover_title"/>
     <item
         android:id="@+id/pokedex_button"
+        android:icon="@drawable/ic_save_black_24dp"
         android:title="@string/pokedex_title" />
 </menu>

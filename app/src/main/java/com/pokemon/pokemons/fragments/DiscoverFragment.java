@@ -28,6 +28,7 @@ import com.pokemon.pokemons.rest.models.PokemonResourceModel;
 import com.pokemon.pokemons.rest.models.PokemonResult;
 import com.pokemon.pokemons.utils.ClickListener;
 import com.pokemon.pokemons.utils.RecyclerTouchListener;
+import com.pokemon.pokemons.utils.SharedPreference;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -43,16 +44,17 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.observables.ConnectableObservable;
 import io.reactivex.schedulers.Schedulers;
 
 public class DiscoverFragment extends Fragment implements Animation.AnimationListener{
-    boolean isSubscribe = false;
     int offsetList = 20;
     Observable<PokemonModel> pokemonModel;
     Observable<PokemonDetailsModel> pokemonDetails;
     PokemonResourceModel pokemonResourceModel;
     RestService restService;
     PokemonModel pokemonList;
+    SharedPreference sharedPreference;
 
     List<String> pokemonImageList;
 
@@ -95,8 +97,8 @@ public class DiscoverFragment extends Fragment implements Animation.AnimationLis
                 super.onScrollStateChanged(recyclerView, newState);
                 if (gridLayoutManager.findLastVisibleItemPosition() >= recyclerView.getAdapter().getItemCount() - 1){
                     try {
-                        if (!isSubscribe) {
-                            isSubscribe = true;
+                        if (!sharedPreference.getStatusSubscribe()){
+                            sharedPreference.setStatusSubscribe(true);
                             preloaderLayout.setVisibility(View.VISIBLE);
                             getPokemons(true);
                         }
@@ -140,8 +142,8 @@ public class DiscoverFragment extends Fragment implements Animation.AnimationLis
                 });
 
     }
-    private void getPokemons(final boolean isHold) throws IOException {
-        if (isHold) {
+    private void getPokemons(final boolean isHoldItems) throws IOException {
+        if (isHoldItems) {
             pokemonModel = restService.getAllPokemons(String.valueOf(ConstantManager.LIMIT_POKEMON), String.valueOf(offsetList));
             offsetList += ConstantManager.LIMIT_POKEMON;
         }
@@ -156,7 +158,7 @@ public class DiscoverFragment extends Fragment implements Animation.AnimationLis
 
                     @Override
                     public void onNext(PokemonModel pokemonModel) {
-                        if (isHold)
+                        if (isHoldItems)
                             pokemonList.getResults().addAll(pokemonModel.getResults());
                         else
                             pokemonList = pokemonModel;
@@ -170,9 +172,10 @@ public class DiscoverFragment extends Fragment implements Animation.AnimationLis
 
                     @Override
                     public void onComplete() {
-                        getPokemonResources(isHold ? pokemonList.getResults().size() - ConstantManager.LIMIT_POKEMON : 0);
+                        getPokemonResources(isHoldItems ? pokemonList.getResults().size() - ConstantManager.LIMIT_POKEMON : 0);
                     }
                 });
+
     }
     private void getPokemonResources(int startIndex){
         Observable<Integer> pokemonModelObservable = Observable.range(startIndex, pokemonList.getResults().size() - startIndex);
@@ -193,11 +196,12 @@ public class DiscoverFragment extends Fragment implements Animation.AnimationLis
                             e.printStackTrace();
                         }
                         pokemonImageList.add(pokemonResourceModel.getSprites().getFrontDefault());
+                        Log.d("aaaaa",pokemonImageList.get(index));
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        isSubscribe = false;
+                        sharedPreference.setStatusSubscribe(false);
                     }
 
                     @Override
@@ -207,8 +211,8 @@ public class DiscoverFragment extends Fragment implements Animation.AnimationLis
                             public void run() {
                                 setRecyclerAdapter(pokemonList, pokemonImageList);
                                 preloaderLayout.setVisibility(View.GONE);
-                                isSubscribe = false;
-                                recyclerView.getLayoutManager().scrollToPosition(offsetList - ConstantManager.LIMIT_POKEMON);
+                                sharedPreference.setStatusSubscribe(false);
+                                recyclerView.getLayoutManager().scrollToPosition(offsetList - ConstantManager.LIMIT_POKEMON - 2);
                             }
                         });
                     }
@@ -219,7 +223,9 @@ public class DiscoverFragment extends Fragment implements Animation.AnimationLis
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.discover_layout, container, false);
         restService = new RestService();
-        pokemonImageList = new ArrayList<>();
+        if(pokemonImageList == null)
+            pokemonImageList = new ArrayList<>();
+        sharedPreference = new SharedPreference(getActivity());
         ButterKnife.bind(this, view);
         initRecyclerView();
         setRecyclerViewClick();
@@ -228,9 +234,10 @@ public class DiscoverFragment extends Fragment implements Animation.AnimationLis
         preloaderLayout.setVisibility(View.VISIBLE);
         rotateImage.startAnimation(rotateAnim);
         try {
-            if (!isSubscribe)
-                isSubscribe = true;
+            if (!sharedPreference.getStatusSubscribe()) {
+                sharedPreference.setStatusSubscribe(true);
                 getPokemons(false);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

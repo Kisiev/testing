@@ -54,6 +54,6 @@ public class AbilitiesEntity extends BaseModel {
         return SQLite.select().from(AbilitiesEntity.class).where(AbilitiesEntity_Table.urlPokemon.eq(url)).queryList();
     }
     public static void deleteAbilities(String urlPokemon){
-        SQLite.delete().from(AbilitiesEntity.class).where(AbilitiesEntity_Table.urlPokemon.eq(urlPokemon)).execute();
+        SQLite.delete().from(AbilitiesEntity.class).where(AbilitiesEntity_Table.urlPokemon.eq(urlPokemon)).async().execute();
     }
 }

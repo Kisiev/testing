@@ -69,7 +69,7 @@ public class PokemonEntity extends BaseModel{
     }
 
     public static void deletePokemon(String url){
-        SQLite.delete().from(PokemonEntity.class).where(PokemonEntity_Table.url.eq(url)).execute();
+        SQLite.delete().from(PokemonEntity.class).where(PokemonEntity_Table.url.eq(url)).async().execute();
         StatesEntity.deleteStates(url);
         AbilitiesEntity.deleteAbilities(url);
     }
