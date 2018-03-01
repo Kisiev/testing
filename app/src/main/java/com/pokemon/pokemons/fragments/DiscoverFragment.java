@@ -25,17 +25,13 @@ import com.pokemon.pokemons.rest.RestService;
 import com.pokemon.pokemons.rest.models.PokemonDetailsModel;
 import com.pokemon.pokemons.rest.models.PokemonModel;
 import com.pokemon.pokemons.rest.models.PokemonResourceModel;
-import com.pokemon.pokemons.rest.models.PokemonResult;
 import com.pokemon.pokemons.utils.ClickListener;
 import com.pokemon.pokemons.utils.RecyclerTouchListener;
 import com.pokemon.pokemons.utils.SharedPreference;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.security.auth.callback.Callback;
 
 import butterknife.BindAnim;
 import butterknife.BindView;
@@ -44,19 +40,16 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.observables.ConnectableObservable;
 import io.reactivex.schedulers.Schedulers;
 
 public class DiscoverFragment extends Fragment implements Animation.AnimationListener{
-    int offsetList = 20;
+    int offsetList = ConstantManager.OFFSET_LIST;
     Observable<PokemonModel> pokemonModel;
     Observable<PokemonDetailsModel> pokemonDetails;
     PokemonResourceModel pokemonResourceModel;
     RestService restService;
     PokemonModel pokemonList;
     SharedPreference sharedPreference;
-
-    List<String> pokemonImageList;
 
     @BindView(R.id.discover_recycler_view)
     RecyclerView recyclerView;
@@ -73,8 +66,8 @@ public class DiscoverFragment extends Fragment implements Animation.AnimationLis
     private void initRecyclerView(){
         recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
     }
-    private void setRecyclerAdapter(PokemonModel pokemonList, List<String> pokemonImageList){
-        recyclerView.setAdapter(new RecyclerViewAdapter(pokemonList, pokemonImageList, getActivity()));
+    private void setRecyclerAdapter(PokemonModel pokemonList){
+        recyclerView.setAdapter(new RecyclerViewAdapter(pokemonList, getActivity()));
     }
     private void setRecyclerViewClick(){
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getActivity(), recyclerView, new ClickListener() {
@@ -82,7 +75,7 @@ public class DiscoverFragment extends Fragment implements Animation.AnimationLis
             public void onClick(View view, int position) {
                 String[] s = pokemonList.getResults().get(position).getUrl().split("/");
                 try {rotateImage.setVisibility(View.VISIBLE);
-                    getPokemonDetails(s[s.length - 1], pokemonImageList.get(position));
+                    getPokemonDetails(s[s.length - 1], pokemonList.getResults().get(position).getImage());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -150,7 +143,7 @@ public class DiscoverFragment extends Fragment implements Animation.AnimationLis
             pokemonModel = restService.getAllPokemons(String.valueOf(ConstantManager.LIMIT_POKEMON), String.valueOf(offsetList));
             offsetList += ConstantManager.LIMIT_POKEMON;
         }
-        else pokemonModel = restService.getAllPokemons();
+        else pokemonModel = restService.getAllPokemons(String.valueOf(ConstantManager.LIMIT_POKEMON), String.valueOf(0));
         pokemonModel.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<PokemonModel>() {
@@ -199,8 +192,7 @@ public class DiscoverFragment extends Fragment implements Animation.AnimationLis
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        pokemonImageList.add(pokemonResourceModel.getSprites().getFrontDefault());
-                        Log.d("aaaaa",pokemonImageList.get(index));
+                        pokemonList.getResults().get(index).setImage((pokemonResourceModel.getSprites().getFrontDefault()));
                     }
 
                     @Override
@@ -213,7 +205,7 @@ public class DiscoverFragment extends Fragment implements Animation.AnimationLis
                         AndroidSchedulers.mainThread().createWorker().schedule(new Runnable() {
                             @Override
                             public void run() {
-                                setRecyclerAdapter(pokemonList, pokemonImageList);
+                                setRecyclerAdapter(pokemonList);
                                 preloaderLayout.setVisibility(View.GONE);
                                 sharedPreference.setStatusSubscribe(false);
                                 recyclerView.getLayoutManager().scrollToPosition(offsetList - ConstantManager.LIMIT_POKEMON - 2);
@@ -227,8 +219,6 @@ public class DiscoverFragment extends Fragment implements Animation.AnimationLis
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.discover_layout, container, false);
         restService = new RestService();
-        if(pokemonImageList == null)
-            pokemonImageList = new ArrayList<>();
         sharedPreference = new SharedPreference(getActivity());
         ButterKnife.bind(this, view);
         initRecyclerView();
@@ -238,7 +228,7 @@ public class DiscoverFragment extends Fragment implements Animation.AnimationLis
         preloaderLayout.setVisibility(View.VISIBLE);
         rotateImage.startAnimation(rotateAnim);
         try {
-            if (!sharedPreference.getStatusSubscribe()) {
+            if (!sharedPreference.getStatusSubscribe()) { // Если не идет загрузка с сервера, то загружаем. Переход на другую вкладку не отменяет загрузку.
                 sharedPreference.setStatusSubscribe(true);
                 getPokemons(false);
             }

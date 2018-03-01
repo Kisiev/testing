@@ -19,11 +19,9 @@ import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder> {
     PokemonModel pokemonsList;
-    List<String> pokemonImageList;
     Context context;
-    public RecyclerViewAdapter(PokemonModel pokemonsList, List<String> pokemonImageList, Context context){
+    public RecyclerViewAdapter(PokemonModel pokemonsList, Context context){
         this.pokemonsList = pokemonsList;
-        this.pokemonImageList = pokemonImageList;
         this.context = context;
     }
 
@@ -36,7 +34,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder
     @Override
     public void onBindViewHolder(RecyclerViewHolder holder, int position) {
         holder.pokemonName.setText(pokemonsList.getResults().get(position).getName());
-        MainActivity.setImageUrl(holder.pokemonImage, context, Uri.parse(pokemonImageList.get(position)), 0);
+        MainActivity.setImageUrl(holder.pokemonImage, context, Uri.parse(pokemonsList.getResults().get(position).getImage()), 0);
     }
 
     @Override

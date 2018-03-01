@@ -10,10 +10,11 @@ import io.reactivex.Observable;
 import retrofit2.Call;
 
 public class RestService {
-    public RestClient restClient;
+    private RestClient restClient;
 
     public RestService(){
-        restClient = new RestClient();
+        if (restClient == null)
+            restClient = new RestClient();
     }
     // подгрузить первые 20 записей с сервера
     public Observable<PokemonModel> getAllPokemons() throws IOException {

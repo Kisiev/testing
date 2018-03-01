@@ -24,7 +24,7 @@ import butterknife.OnClick;
 
 public class DetailsActivity extends AppCompatActivity implements View.OnClickListener{
     PokemonDetailsModel pokemonDetailsModel;
-
+    PokemonEntity pokemonEntity;
     @BindView(R.id.pokemon_image)
     ImageView pokemonImage;
 
@@ -74,15 +74,16 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
     //сохранить покемона в локальную базу данных если его нет, иначе удалаем
     private void saveOrDeletePokemon(){
         if (!isSavedPokemon) {
-            PokemonEntity.insertPokemon(pokemonDetailsModel.getForms().get(0).getUrl(),
+            pokemonEntity.insertPokemon(pokemonDetailsModel.getForms().get(0).getUrl(),
                     pokemonDetailsModel.getForms().get(0).getName(),
                     bundle.getString(getString(R.string.pokemon_image)),
                     pokemonDetailsModel);
             savePokemonButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_close_black_24dp));
         } else {
-            PokemonEntity.deletePokemon(pokemonDetailsModel.getForms().get(0).getUrl());
+            pokemonEntity.deletePokemon(pokemonDetailsModel.getForms().get(0).getUrl());
             savePokemonButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_black_24dp));
         }
+        isSavedPokemon = !isSavedPokemon;
         Intent intent = new Intent();
         intent.putExtra(getString(R.string.position_item), getIntent().getIntExtra(getString(R.string.position_item), 1));
         setResult(RESULT_OK, intent);
@@ -92,11 +93,12 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.details_layout);
         ButterKnife.bind(this);
+        pokemonEntity = new PokemonEntity();
         savePokemonButton.setOnClickListener(this);
         bundle = getIntent().getExtras();
         pokemonDetailsModel = (PokemonDetailsModel) bundle.getSerializable(getResources().getString(R.string.detail_pokemon));
         if (pokemonDetailsModel != null) {
-            isSavedPokemon = PokemonEntity.isSaved(pokemonDetailsModel.getForms().get(0).getUrl());
+            isSavedPokemon = pokemonEntity.isSaved(pokemonDetailsModel.getForms().get(0).getUrl());
         }
         setPokemonLayout();
     }

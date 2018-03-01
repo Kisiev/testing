@@ -21,6 +21,9 @@ import io.reactivex.schedulers.Schedulers;
 @Table(database = AppDatabase.class)
 public class PokemonEntity extends BaseModel{
 
+    StatesEntity statesEntity;
+    AbilitiesEntity abilitiesEntity;
+
     @PrimaryKey
     String id;
 
@@ -32,6 +35,11 @@ public class PokemonEntity extends BaseModel{
 
     @Column()
     private String imageUrl;
+
+    public PokemonEntity (){
+        statesEntity = new StatesEntity();
+        abilitiesEntity = new AbilitiesEntity();
+    }
 
     public String getUrl() {
         return url;
@@ -57,33 +65,29 @@ public class PokemonEntity extends BaseModel{
         this.imageUrl = imageUrl;
     }
 
-    public static void insertPokemon(String url, String name, String imageUrl, PokemonDetailsModel pokemonDetailsModel){
+    public void insertPokemon(String url, String name, String imageUrl, PokemonDetailsModel pokemonDetailsModel){
         SQLite.insert(PokemonEntity.class).columns("url", "name", "imageUrl")
                 .values(url, name, imageUrl).execute();
         for (States i : pokemonDetailsModel.getStats()){
-            StatesEntity.insertStates(url, i.getStat().getName(), String.valueOf(i.getBaseStat()));
+            statesEntity.insertStates(url, i.getStat().getName(), String.valueOf(i.getBaseStat()));
+           //StatesEntity.insertStates();
         }
         for (Abilities i : pokemonDetailsModel.getAbilities()){
-            AbilitiesEntity.insertAbilities(url, i.getAbility().getName());
+            abilitiesEntity.insertAbilities(url, i.getAbility().getName());
         }
     }
 
-    public static void deletePokemon(String url){
+    public void deletePokemon(String url){
         SQLite.delete().from(PokemonEntity.class).where(PokemonEntity_Table.url.eq(url)).async().execute();
-        StatesEntity.deleteStates(url);
-        AbilitiesEntity.deleteAbilities(url);
+        statesEntity.deleteStates(url);
+        abilitiesEntity.deleteAbilities(url);
     }
 
-    public static boolean isSaved(String url){
+    public boolean isSaved(String url){
         if(SQLite.select().from(PokemonEntity.class).where(PokemonEntity_Table.url.eq(url)).queryList().size() > 0) {
             return true;
         } else {
             return false;
         }
-    }
-
-    public static List<PokemonEntity> selectAllPokemons(){
-        return SQLite.select().from(PokemonEntity.class)
-                .queryList();
     }
 }

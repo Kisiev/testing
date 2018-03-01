@@ -25,8 +25,8 @@ public class RestClient {
                 .client(okHttpClient)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
-
-        pokemonApi = retrofit.create(PokemonApi.class);
+        if (pokemonApi == null)
+            pokemonApi = retrofit.create(PokemonApi.class);
     }
     public PokemonApi getPokemonApi(){
         return pokemonApi;

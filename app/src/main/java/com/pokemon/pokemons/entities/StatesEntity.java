@@ -4,13 +4,22 @@ import com.pokemon.pokemons.AppDatabase;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.rx2.language.RXSQLite;
+import com.raizlabs.android.dbflow.rx2.structure.BaseRXModel;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.List;
 
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 @Table(database = AppDatabase.class)
-public class StatesEntity extends BaseModel {
+public class StatesEntity extends BaseRXModel {
+
+    List<StatesEntity> entities;
 
     @PrimaryKey
     private String id;
@@ -56,16 +65,13 @@ public class StatesEntity extends BaseModel {
         this.statesDamage = statesDamage;
     }
 
-    public static void insertStates(String urlPokemon, String statesName, String statesDamage){
+    public void insertStates(String urlPokemon, String statesName, String statesDamage){
         SQLite.insert(StatesEntity.class).columns("urlPokemon", "statesName", "statesDamage")
                 .values(urlPokemon, statesName, statesDamage)
                 .execute();
     }
-    public static List<StatesEntity> selectAllStates(String url){
-        return SQLite.select().from(StatesEntity.class).where(StatesEntity_Table.urlPokemon.eq(url)).queryList();
-    }
 
-    public static void deleteStates(String urlPokemon){
+    public void deleteStates(String urlPokemon){
         SQLite.delete().from(StatesEntity.class).where(StatesEntity_Table.urlPokemon.eq(urlPokemon)).async().execute();
     }
 }
