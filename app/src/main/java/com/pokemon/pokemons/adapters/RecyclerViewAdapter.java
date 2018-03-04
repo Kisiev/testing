@@ -33,8 +33,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewHolder
 
     @Override
     public void onBindViewHolder(RecyclerViewHolder holder, int position) {
-        holder.pokemonName.setText(pokemonsList.getResults().get(position).getName());
-        MainActivity.setImageUrl(holder.pokemonImage, context, Uri.parse(pokemonsList.getResults().get(position).getImage()), 0);
+        if (pokemonsList.getResults().get(position).getImage() != null) {
+            holder.pokemonName.setText(pokemonsList.getResults().get(position).getName());
+            MainActivity.setImageUrl(holder.pokemonImage, context, Uri.parse(pokemonsList.getResults().get(position).getImage()), 0);
+        }
     }
 
     @Override

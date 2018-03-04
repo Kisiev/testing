@@ -193,6 +193,7 @@ public class DiscoverFragment extends Fragment implements Animation.AnimationLis
                             e.printStackTrace();
                         }
                         pokemonList.getResults().get(index).setImage((pokemonResourceModel.getSprites().getFrontDefault()));
+                        Log.d("111", pokemonList.getResults().get(index).getImage());
                     }
 
                     @Override
